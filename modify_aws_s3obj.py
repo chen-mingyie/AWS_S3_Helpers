@@ -1,6 +1,5 @@
-import boto3, datetime, pandas as pd, os
+import boto3, datetime, pandas as pd, os, configparser
 from typing import List, Dict
-from dotenv import load_dotenv
 
 def get_all_objects(s3_client, working_bucket: str, prefix: str, less_than_date: datetime):
     # get all objects earlier than a specific date
@@ -47,10 +46,12 @@ def download_objects(s3_client, working_bucket: str, local_dir: str, key_version
                                 ExtraArgs={'VersionId': version})
 
 if __name__ == "__main__":
-    load_dotenv('.env')
+    secrets = configparser.ConfigParser()
+    secrets.read('secrets_DO_NOT_DEPOLY.ini')
+
     session = boto3.Session(
-        aws_access_key_id=os.getenv('AWS_KEY'),
-        aws_secret_access_key=os.getenv('AWS_SECRET')
+        aws_access_key_id=secrets['AWS']['AWS_KEY'],
+        aws_secret_access_key=secrets['AWS']['AWS_SECRET']
     )
     s3_client = session.client('s3')
     # bucket = session.resource('s3').Bucket(working_bucket)
