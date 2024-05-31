@@ -14,7 +14,7 @@ def get_all_objects(s3_client, working_bucket: str, prefix: str, less_than_date:
         less_than_dat (datetime): only process objects earlier than this date
     
     Returns:
-        Tuple[List, List]: list of objects to download, list of objects to delete; both list
+        Tuple[List[Dict], List[Dict]]: list of objects to download, list of objects to delete; both list
         contains the object key ('Key') and version ('VersionId').
     '''
     objects = []
