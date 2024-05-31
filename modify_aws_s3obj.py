@@ -46,8 +46,7 @@ def delete_objects(s3_client, working_bucket:str, key_version_to_delete: List[Di
         s3_client (Any):
         key_version_to_delete (List[Dict]): List of Dict[Key, VersionId]
     
-    Returns:
-        None
+    Returns: None
     '''
     batch_size = 1000 # enforce batch size of 1000 to keep within aws api limits
     for i in tqdm(range(0, len(key_version_to_delete), batch_size), 'Deleting objects'):
@@ -64,8 +63,7 @@ def download_objects(s3_client, working_bucket: str, local_dir: str, key_version
         local_dir (str): local directory to download s3 objects to
         key_version_to_download (List[Dict]): List of Dict[Key, VersionId]
     
-    Returns:
-        None
+    Returns: None
     '''
     for i in tqdm(range(0, len(key_version_to_download)), 'Downloading files'):
         s3file = key_version_to_download[i]['Key']
