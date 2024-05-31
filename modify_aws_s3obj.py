@@ -1,5 +1,6 @@
 import boto3, datetime, pandas as pd, os, configparser
 from typing import List, Dict
+from tqdm import tqdm
 
 def get_all_objects(s3_client, working_bucket: str, prefix: str, less_than_date: datetime):
     # get all objects earlier than a specific date
@@ -7,7 +8,7 @@ def get_all_objects(s3_client, working_bucket: str, prefix: str, less_than_date:
     to_delete = []
     to_download = []
     paginator = s3_client.get_paginator('list_object_versions')
-    for result in paginator.paginate(Bucket=working_bucket, Prefix=prefix):
+    for result in tqdm(paginator.paginate(Bucket=working_bucket, Prefix=prefix), 'Getting objects from pages'):
         for version in result.get('Versions', []):
             if (version['LastModified']).replace(tzinfo = None) < less_than_date:
                 objects.append(version)
@@ -27,14 +28,14 @@ def get_all_objects(s3_client, working_bucket: str, prefix: str, less_than_date:
 def delete_objects(s3_client, working_bucket:str, key_version_to_delete: List[Dict]) -> Dict:
     # delete those object return from above
     batch_size = 1000 # enforce batch size of 1000 to keep within aws api limits
-    for i in range(0, len(key_version_to_delete), batch_size):
+    for i in tqdm(range(0, len(key_version_to_delete), batch_size), 'Deleting objects'):
         batch = key_version_to_delete[i:i+batch_size]
         response = s3_client.delete_objects(Bucket=working_bucket, Delete={'Objects': batch})
 
     return response
 
 def download_objects(s3_client, working_bucket: str, local_dir: str, key_version_to_download: List[Dict]) -> Dict:
-    for i in range(0, len(key_version_to_download)):
+    for i in tqdm(range(0, len(key_version_to_download)), 'Downloading files'):
         s3file = key_version_to_download[i]['Key']
         version = key_version_to_download[i]['VersionId']
         filepath = os.path.dirname(os.path.join(local_dir, s3file))
