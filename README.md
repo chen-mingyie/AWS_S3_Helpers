@@ -1,4 +1,4 @@
 Python scripts to:
-- Collect all object version in s3 buckets
+- Collect all object versions in s3 bucket
 - Download the lastest object version
-- Delete object version earlier than a specified date
+- Delete object versions and delete_markers earlier than a specified date

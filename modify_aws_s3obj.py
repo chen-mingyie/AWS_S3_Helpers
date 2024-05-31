@@ -38,7 +38,7 @@ def get_all_objects(s3_client, working_bucket: str, prefix: str, less_than_date:
     # pd.DataFrame(objects).to_csv(r'C:\Users\chen_\Downloads\s3_objects.csv', index=False) 
     return to_download, to_delete
 
-def delete_objects(s3_client, working_bucket:str, key_version_to_delete: List[Dict]) -> Dict:
+def delete_objects(s3_client, working_bucket:str, key_version_to_delete: List[Dict]):
     '''
     Function to delete s3 objects. Requests are sent in batch of 1000 using aws api.
 
@@ -47,16 +47,14 @@ def delete_objects(s3_client, working_bucket:str, key_version_to_delete: List[Di
         key_version_to_delete (List[Dict]): List of Dict[Key, VersionId]
     
     Returns:
-        Response from client.delete_objects()
+        None
     '''
     batch_size = 1000 # enforce batch size of 1000 to keep within aws api limits
     for i in tqdm(range(0, len(key_version_to_delete), batch_size), 'Deleting objects'):
         batch = key_version_to_delete[i:i+batch_size]
         response = s3_client.delete_objects(Bucket=working_bucket, Delete={'Objects': batch})
 
-    return response
-
-def download_objects(s3_client, working_bucket: str, local_dir: str, key_version_to_download: List[Dict]) -> Dict:
+def download_objects(s3_client, working_bucket: str, local_dir: str, key_version_to_download: List[Dict]):
     '''
     Function to download s3 objects. Requests are sent one by one using aws api. Objects are downloaded
     to local_dir into the same folder structure represented by object prefix.
@@ -67,7 +65,7 @@ def download_objects(s3_client, working_bucket: str, local_dir: str, key_version
         key_version_to_download (List[Dict]): List of Dict[Key, VersionId]
     
     Returns:
-        Response from client.delete_objects()
+        None
     '''
     for i in tqdm(range(0, len(key_version_to_download)), 'Downloading files'):
         s3file = key_version_to_download[i]['Key']
