@@ -58,10 +58,10 @@ if __name__ == "__main__":
     # resp = s3_client.list_object_versions(Bucket=working_bucket)
 
     working_bucket = 'dsta'
-    prefix= '<your-prefix>' #'News/DailyEvents/Archived'
-    ls_date = datetime.datetime(1990, 1, 1) # only files earlier than this date will be returned
+    prefix= '<your-prefix>' #'News/DailyEvents/Archived/'
+    ls_date = datetime.datetime(2024, 6, 1) # only files earlier than this date will be returned
 
     to_download, to_delete = get_all_objects(s3_client, working_bucket, prefix, ls_date)
-    download_objects(s3_client, working_bucket, '/tmp', to_download)
+    # download_objects(s3_client, working_bucket, '/tmp', to_download)
     delete_objects(s3_client, working_bucket, to_delete)
 pass
