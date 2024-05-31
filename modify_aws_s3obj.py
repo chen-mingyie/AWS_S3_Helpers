@@ -1,8 +1,8 @@
 import boto3, datetime, os, configparser #, pandas as pd
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from tqdm import tqdm
 
-def get_all_objects(s3_client, working_bucket: str, prefix: str, less_than_date: datetime):
+def get_all_objects(s3_client, working_bucket: str, prefix: str, less_than_date: datetime) -> Tuple[List[Dict], List[Dict]]:
     '''
     Function to get all objects earlier than a specific date. Generates a to_download list consisting 
     of $Latest object and to_delete list containing all objects earlier than less_than_date.
