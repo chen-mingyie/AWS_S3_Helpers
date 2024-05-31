@@ -35,13 +35,13 @@ def delete_objects(s3_client, working_bucket:str, key_version_to_delete: List[Di
 
 def download_objects(s3_client, working_bucket: str, local_dir: str, key_version_to_download: List[Dict]) -> Dict:
     for i in range(0, len(key_version_to_download)):
-        key = key_version_to_download[i]['Key']
+        s3file = key_version_to_download[i]['Key']
         version = key_version_to_download[i]['VersionId']
-        filepath = os.path.dirname(os.path.join(local_dir, key))
-        filename = os.path.basename(key)
+        filepath = os.path.dirname(os.path.join(local_dir, s3file))
+        filename = os.path.basename(s3file)
         if not os.path.exists(filepath): os.makedirs(filepath)
         s3_client.download_file(working_bucket, 
-                                key, 
+                                s3file, 
                                 os.path.join(filepath, filename), 
                                 ExtraArgs={'VersionId': version})
 
@@ -63,5 +63,5 @@ if __name__ == "__main__":
 
     to_download, to_delete = get_all_objects(s3_client, working_bucket, prefix, ls_date)
     # download_objects(s3_client, working_bucket, '/tmp', to_download)
-    delete_objects(s3_client, working_bucket, to_delete)
+    # delete_objects(s3_client, working_bucket, to_delete)
 pass
