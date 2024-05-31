@@ -1,9 +1,22 @@
-import boto3, datetime, pandas as pd, os, configparser
+import boto3, datetime, os, configparser #, pandas as pd
 from typing import List, Dict
 from tqdm import tqdm
 
 def get_all_objects(s3_client, working_bucket: str, prefix: str, less_than_date: datetime):
-    # get all objects earlier than a specific date
+    '''
+    Function to get all objects earlier than a specific date. Generates a to_download list consisting 
+    of $Latest object and to_delete list containing all objects earlier than less_than_date.
+
+    Args:
+        s3_client (Any):
+        working_bucket (str): s3 bucket
+        prefix (str): prefix to filter bucket to
+        less_than_dat (datetime): only process objects earlier than this date
+    
+    Returns:
+        Tuple[List, List]: list of objects to download, list of objects to delete; both list
+        contains the object key ('Key') and version ('VersionId').
+    '''
     objects = []
     to_delete = []
     to_download = []
@@ -26,7 +39,16 @@ def get_all_objects(s3_client, working_bucket: str, prefix: str, less_than_date:
     return to_download, to_delete
 
 def delete_objects(s3_client, working_bucket:str, key_version_to_delete: List[Dict]) -> Dict:
-    # delete those object return from above
+    '''
+    Function to delete s3 objects. Requests are sent in batch of 1000 using aws api.
+
+    Args:
+        s3_client (Any):
+        key_version_to_delete (List[Dict]): List of Dict[Key, VersionId]
+    
+    Returns:
+        Response from client.delete_objects()
+    '''
     batch_size = 1000 # enforce batch size of 1000 to keep within aws api limits
     for i in tqdm(range(0, len(key_version_to_delete), batch_size), 'Deleting objects'):
         batch = key_version_to_delete[i:i+batch_size]
@@ -35,6 +57,18 @@ def delete_objects(s3_client, working_bucket:str, key_version_to_delete: List[Di
     return response
 
 def download_objects(s3_client, working_bucket: str, local_dir: str, key_version_to_download: List[Dict]) -> Dict:
+    '''
+    Function to download s3 objects. Requests are sent one by one using aws api. Objects are downloaded
+    to local_dir into the same folder structure represented by object prefix.
+
+    Args:
+        s3_client (Any):
+        local_dir (str): local directory to download s3 objects to
+        key_version_to_download (List[Dict]): List of Dict[Key, VersionId]
+    
+    Returns:
+        Response from client.delete_objects()
+    '''
     for i in tqdm(range(0, len(key_version_to_download)), 'Downloading files'):
         s3file = key_version_to_download[i]['Key']
         version = key_version_to_download[i]['VersionId']
