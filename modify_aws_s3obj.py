@@ -20,9 +20,8 @@ def get_all_objects(s3_client, working_bucket: str, prefix: str, less_than_date:
                 objects.append(delete_marker)
                 to_delete.append({'Key': delete_marker['Key'], 'VersionId': delete_marker['VersionId']})
 
-    return to_download, to_delete
-
     # pd.DataFrame(objects).to_csv(r'C:\Users\chen_\Downloads\s3_objects.csv', index=False) # for debug, print out to_delete to check
+    return to_download, to_delete
 
 def delete_objects(s3_client, working_bucket:str, key_version_to_delete: List[Dict]) -> Dict:
     # delete those object return from above
