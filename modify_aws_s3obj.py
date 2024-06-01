@@ -1,8 +1,10 @@
-import boto3, datetime, os, configparser #, pandas as pd
+import boto3, datetime, os, configparser, pandas as pd
 from typing import List, Dict, Tuple
 from tqdm import tqdm
 
-def get_all_objects(s3_client, working_bucket: str, prefix: str, less_than_date: datetime) -> Tuple[List[Dict], List[Dict]]:
+def get_all_objects(s3_client, working_bucket: str, prefix: str,
+                    less_than_date: datetime,
+                    export_returns_to_folder: str = '') -> Tuple[List[Dict], List[Dict]]:
     '''
     Function to get all objects earlier than a specific date. Generates a to_download list consisting 
     of $Latest object and to_delete list containing all objects earlier than less_than_date.
@@ -12,6 +14,7 @@ def get_all_objects(s3_client, working_bucket: str, prefix: str, less_than_date:
         working_bucket (str): s3 bucket
         prefix (str): prefix to filter bucket to
         less_than_dat (datetime): only process objects earlier than this date
+        export_returns_to_folder (str): Optional. export list of objects collected to folderpath
     
     Returns:
         Tuple[List[Dict], List[Dict]]: list of objects to download, list of objects to delete; both list
@@ -35,7 +38,8 @@ def get_all_objects(s3_client, working_bucket: str, prefix: str, less_than_date:
                 to_delete.append({'Key': delete_marker['Key'], 'VersionId': delete_marker['VersionId']})
 
     # for debug, print out objects to check
-    # pd.DataFrame(objects).to_csv(r'C:\Users\chen_\Downloads\s3_objects.csv', index=False) 
+    if len(export_returns_to_folder) > 0: 
+        pd.DataFrame(objects).to_csv(os.path.join(export_returns_to_folder, 's3objects.csv'))
     return to_download, to_delete
 
 def delete_objects(s3_client, working_bucket:str, key_version_to_delete: List[Dict]):
@@ -90,7 +94,7 @@ if __name__ == "__main__":
 
     working_bucket = 'dsta'
     prefix= '<your-prefix>' #'News/DailyEvents/Archived/'
-    ls_date = datetime.datetime(2024, 6, 1) # only files earlier than this date will be returned
+    ls_date = datetime.datetime(2024, 6, 2) # only files earlier than this date will be returned
 
     to_download, to_delete = get_all_objects(s3_client, working_bucket, prefix, ls_date)
     # download_objects(s3_client, working_bucket, '/tmp', to_download)
